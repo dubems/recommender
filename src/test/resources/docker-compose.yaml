@@ -1,0 +1,11 @@
+version: '3'
+services:
+  psql:
+    network_mode: bridge
+    image: postgres:10
+    ports:
+      - 5432
+    environment:
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: recommender
+      TZ: GMT

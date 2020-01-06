@@ -1,0 +1,30 @@
+apply plugin: "com.avast.gradle.docker-compose"
+
+test {
+    useJUnitPlatform {
+        excludeTags 'integration-test'
+    }
+}
+
+
+task integrationTest(type: Test) {
+    useJUnitPlatform {
+        includeTags 'integration-test'
+    }
+    shouldRunAfter test
+    check.dependsOn it
+}
+
+integrationTest.doFirst {
+    dockerCompose.exposeAsSystemProperties(integrationTest)
+}
+dockerCompose.isRequiredBy(integrationTest)
+
+dockerCompose {
+    waitForTcpPorts = true
+    useComposeFiles = ['docker-compose.yaml']
+    dockerComposeWorkingDirectory = "${projectDir}/src/test/resources/"
+    dockerComposeStopTimeout = java.time.Duration.ofSeconds(10)
+    projectName = UUID.randomUUID()
+    environment.put 'HOST_NAME', 'localhost'
+}
